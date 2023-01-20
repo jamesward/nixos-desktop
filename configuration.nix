@@ -66,6 +66,7 @@
     alsa.support32Bit = true;
     pulse.enable = true;
   };
+  services.logind.lidSwitch = "ignore";
 
   users.users.jw = {
     isNormalUser = true;
@@ -73,7 +74,7 @@
     extraGroups = [ "networkmanager" "wheel" ];
   };
 
-  home-manager.users.jw = { pkgs, ... }: {
+  home-manager.users.jw = { pkgs, lib, ... }: {
     home.stateVersion = "22.11";
 
     nixpkgs.config.allowUnfree = true;
@@ -96,7 +97,13 @@
         sleep-inactive-ac-type = "nothing";
       };
       "org/gnome/desktop/session" = {
-        idle-delay = 0;
+        idle-delay = lib.hm.gvariant.mkUint32 0;
+      };
+      "org/gnome/desktop/screensaver" = {
+        lock-enabled = false;
+      };
+      "org/gnome/desktop/wm/preferences" = {
+        focus-mode = "sloppy";
       };
     };
 
