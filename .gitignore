@@ -1,1 +1,3 @@
-hardware-configuration.nix
+*.swp
+/hardware-configuration.nix
+/dotfiles/

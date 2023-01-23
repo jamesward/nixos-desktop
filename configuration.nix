@@ -23,6 +23,8 @@
   boot.tmpOnTmpfs = true;
   boot.tmpOnTmpfsSize = "5%";
 
+#  boot.blacklistedKernelModules = [ "bluetooth" "btusb" ];
+
   networking.hostName = "nixos"; # Define your hostname.
 
   networking.networkmanager.enable = true;
@@ -59,6 +61,7 @@
 
   sound.enable = true;
   hardware.pulseaudio.enable = false;
+  hardware.bluetooth.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -81,10 +84,14 @@
     home.packages = [
       pkgs.google-chrome
       pkgs.trash-cli
+      pkgs.maven
+      pkgs.gnome.gnome-tweaks
     ];
     programs.bash.enable = true;
     programs.bash.shellAliases = {
        rm = "trash-put";
+       mvn-release = "mvn release:prepare release:perform -Darguments=-Dgpg.passphrase=\"\"";
+       mvn-package = "mvn clean package";
     };
 
     # Use `dconf watch /` to track stateful changes you are doing
@@ -104,6 +111,33 @@
       };
       "org/gnome/desktop/wm/preferences" = {
         focus-mode = "sloppy";
+      };
+      "org/gnome/desktop/search-providers" = {
+        disable-external = true;
+      };
+      "org/gnome/desktop/interface" = {
+        enable-hot-corners = false;
+      };
+      "org/gnome/mutter" = {
+        edge-tiling = false;
+      };
+      "org/gnome/desktop/interface" = {
+        clock-format = "12h";
+      };
+      "org/gtk/settings/file-chooser" = {
+        clock-format = "12h";
+      };
+      "org/gnome/desktop/wm/preferences" = {
+        auto-raise = true;
+      };
+      "org/gnome/Console" = {
+        theme = "auto";
+      };
+      "org/gnome/terminal/legacy" = {
+        new-terminal-mode = "tab";
+      };
+      "org/gnome/terminal/legacy/keybindings" = {
+        reset-and-clear = "<Primary><Shift>k";
       };
     };
 
@@ -140,12 +174,19 @@
         set mouse-=a
       '';
     };
+
+    home.file = {
+      ".gradle/gradle.properties".source = ./dotfiles/gradle.properties;
+      ".m2/settings.xml".source = ./dotfiles/settings.xml;
+      ".sbt/1.0/sonatype.sbt".source = ./dotfiles/sonatype.sbt;
+    };
   };
 
   environment.gnome.excludePackages = (with pkgs; [
     gnome-photos
     gnome-tour
     gnome-connections
+    gnome-console
   ]) ++ (with pkgs.gnome; [
     cheese # webcam tool
     gedit # text editor
@@ -180,7 +221,7 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     vim
-    gnome.gnome-tweaks
+    gnome.gnome-terminal
   ];
 
   programs.gnupg.agent = {
