@@ -224,6 +224,12 @@
     gnome.gnome-terminal
   ];
 
+  environment.defaultPackages = [ ];
+
+  environment.variables = {
+    EDITOR = "vim";
+  };
+
   programs.gnupg.agent = {
     enable = true;
   };
