@@ -86,6 +86,8 @@
       pkgs.trash-cli
       pkgs.maven
       pkgs.gnome.gnome-tweaks
+      pkgs.gnomeExtensions.vitals
+      pkgs.gnomeExtensions.dash-to-panel
     ];
     programs.bash.enable = true;
     programs.bash.shellAliases = {
@@ -138,6 +140,42 @@
       };
       "org/gnome/terminal/legacy/keybindings" = {
         reset-and-clear = "<Primary><Shift>k";
+      };
+      "org/gnome/desktop/wm/preferences" = {
+        button-layout = "appmenu:minimize,maximize,close";
+      };
+      "org/gnome/shell" = {
+        disable-user-extensions = false;
+
+        # `gnome-extensions list` for a list
+        enabled-extensions = [
+          "Vitals@CoreCoding.com"
+          "dash-to-panel@jderose9.github.com"
+          "window-list@gnome-shell-extensions.gcampax.github.com"
+        ];
+
+        favorite-apps = [
+          "org.gnome.Terminal.desktop"
+          "org.gnome.Nautilus.desktop"
+          "google-chrome.desktop"
+        ];
+      };
+      "org/gnome/shell/extensions/dash-to-panel" = {
+        group-apps = false;
+      };
+      "org/gnome/shell/extensions/vitals" = {
+        update-time = 1;
+        hot-sensors = [
+          "_processor_usage_"
+          "_memory_usage_"
+        ];
+      };
+      "org/gnome/desktop/sound" = {
+        theme-name = "freedesktop";
+      };
+      "org/gnome/desktop/interface" = {
+        font-antialiasing = "rgba";
+        enable-animations = false;
       };
     };
 
