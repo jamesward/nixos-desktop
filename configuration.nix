@@ -21,7 +21,7 @@
   boot.loader.grub.useOSProber = true;
 
   boot.tmpOnTmpfs = true;
-  boot.tmpOnTmpfsSize = "5%";
+  boot.tmpOnTmpfsSize = "20%";
 
 #  boot.blacklistedKernelModules = [ "bluetooth" "btusb" ];
 
@@ -80,7 +80,15 @@
   home-manager.users.jw = { pkgs, lib, ... }: {
     home.stateVersion = "22.11";
 
-    nixpkgs.config.allowUnfree = true;
+    nixpkgs.config = {
+      allowUnfree = true;
+      packageOverrides = pkgs: {
+        unstable = import <nixos-unstable> {
+          config = config.nixpkgs.config;
+        };
+      };
+    };
+
     home.packages = [
       pkgs.google-chrome
       pkgs.trash-cli
@@ -88,7 +96,9 @@
       pkgs.gnome.gnome-tweaks
       pkgs.gnomeExtensions.vitals
       pkgs.gnomeExtensions.dash-to-panel
+      pkgs.unstable.jetbrains.idea-ultimate
     ];
+
     programs.bash.enable = true;
     programs.bash.shellAliases = {
        rm = "trash-put";
@@ -151,7 +161,6 @@
         enabled-extensions = [
           "Vitals@CoreCoding.com"
           "dash-to-panel@jderose9.github.com"
-          "window-list@gnome-shell-extensions.gcampax.github.com"
         ];
 
         favorite-apps = [
