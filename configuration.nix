@@ -91,8 +91,10 @@
 
     home.packages = [
       pkgs.google-chrome
+      pkgs.chromium
       pkgs.trash-cli
       pkgs.maven
+      pkgs.adoptopenjdk-bin
       pkgs.gnome.gnome-tweaks
       pkgs.gnomeExtensions.vitals
       pkgs.gnomeExtensions.dash-to-panel
@@ -167,6 +169,7 @@
           "org.gnome.Terminal.desktop"
           "org.gnome.Nautilus.desktop"
           "google-chrome.desktop"
+          "idea-ultimate.desktop"
         ];
       };
       "org/gnome/shell/extensions/dash-to-panel" = {
