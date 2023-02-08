@@ -230,6 +230,12 @@
       ".m2/settings.xml".source = ./dotfiles/settings.xml;
       ".sbt/1.0/sonatype.sbt".source = ./dotfiles/sonatype.sbt;
     };
+
+  };
+
+  virtualisation.docker.rootless = {
+    enable = true;
+    setSocketVariable = true;
   };
 
   environment.gnome.excludePackages = (with pkgs; [
