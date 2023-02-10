@@ -20,8 +20,11 @@
   boot.loader.grub.efiSupport = true;
   boot.loader.grub.useOSProber = true;
 
-  boot.tmpOnTmpfs = true;
-  boot.tmpOnTmpfsSize = "20%";
+# Can't figure out how to make nix use a different dir for builds
+# Using /tmp on tmpfs can easily cause "now space left on device" errors
+#
+#  boot.tmpOnTmpfs = true;
+#  boot.tmpOnTmpfsSize = "10%";
 
 #  boot.blacklistedKernelModules = [ "bluetooth" "btusb" ];
 
@@ -91,7 +94,6 @@
 
     home.packages = [
       pkgs.google-chrome
-      pkgs.chromium
       pkgs.trash-cli
       pkgs.maven
       pkgs.adoptopenjdk-bin
@@ -99,6 +101,9 @@
       pkgs.gnomeExtensions.vitals
       pkgs.gnomeExtensions.dash-to-panel
       pkgs.unstable.jetbrains.idea-ultimate
+      pkgs.unzip
+      pkgs.nix-index
+      pkgs.steam-run
     ];
 
     programs.bash.enable = true;
@@ -107,6 +112,7 @@
        mvn-release = "mvn release:prepare release:perform -Darguments=-Dgpg.passphrase=\"\"";
        mvn-package = "mvn clean package";
     };
+
 
     # Use `dconf watch /` to track stateful changes you are doing
     dconf.settings = {
@@ -178,6 +184,7 @@
       "org/gnome/shell/extensions/vitals" = {
         update-time = 1;
         hot-sensors = [
+          "_processor_frequency_"
           "_processor_usage_"
           "_memory_usage_"
         ];
@@ -263,6 +270,9 @@
   ]);
 
   programs.dconf.enable = true;
+
+  # Enable external apps to work via NIX_LD_LIBRARY_PATH
+  programs.nix-ld.enable = true;
 
   services.xserver.displayManager.autoLogin.enable = true;
   services.xserver.displayManager.autoLogin.user = "jw";
