@@ -24,7 +24,7 @@
 # Using /tmp on tmpfs can easily cause "now space left on device" errors
 #
 #  boot.tmpOnTmpfs = true;
-#  boot.tmpOnTmpfsSize = "10%";
+#  boot.tmpOnTmpfsSize = "5%";
 
 #  boot.blacklistedKernelModules = [ "bluetooth" "btusb" ];
 
@@ -96,7 +96,7 @@
       pkgs.google-chrome
       pkgs.trash-cli
       pkgs.maven
-      pkgs.adoptopenjdk-bin
+      pkgs.jdk
       pkgs.gnome.gnome-tweaks
       pkgs.gnomeExtensions.vitals
       pkgs.gnomeExtensions.dash-to-panel
