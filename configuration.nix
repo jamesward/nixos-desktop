@@ -104,6 +104,7 @@
       pkgs.unzip
       pkgs.nix-index
       pkgs.steam-run
+      pkgs.inetutils
     ];
 
     programs.bash.enable = true;
@@ -158,6 +159,14 @@
       };
       "org/gnome/terminal/legacy/keybindings" = {
         reset-and-clear = "<Primary><Shift>k";
+      };
+      "org/gnome/desktop/wm/keybindings" = {
+        switch-applications = [];
+        switch-applications-backward = [];
+        switch-windows = [];
+        switch-windows-backward = [];
+        cycle-windows = ["<Alt>Tab"];
+        cycle-windows-backward = ["<Shift><Alt>Tab"];
       };
       "org/gnome/desktop/wm/preferences" = {
         button-layout = "appmenu:minimize,maximize,close";
