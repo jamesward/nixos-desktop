@@ -221,6 +221,7 @@
         }/bin/git-credential-libsecret";
         push.default = "current";
         push.followTags = true;
+        pull.rebase = true;
         core.pager = "less -+S";
         core.autocrlf = "input";
         commit.gpgsign = true;
@@ -297,6 +298,7 @@
   environment.systemPackages = with pkgs; [
     vim
     gnome.gnome-terminal
+    linux-firmware
   ];
 
   environment.defaultPackages = [ ];
