@@ -243,9 +243,9 @@
     };
 
     home.file = {
-      ".gradle/gradle.properties".source = ./dotfiles/gradle.properties;
-      ".m2/settings.xml".source = ./dotfiles/settings.xml;
-      ".sbt/1.0/sonatype.sbt".source = ./dotfiles/sonatype.sbt;
+      ".gradle/gradle.properties".source = ./secrets/gradle.properties;
+      ".m2/settings.xml".source = ./secrets/settings.xml;
+      ".sbt/1.0/sonatype.sbt".source = ./secrets/sonatype.sbt;
     };
 
   };
@@ -299,6 +299,7 @@
     vim
     gnome.gnome-terminal
     linux-firmware
+    thermald
   ];
 
   environment.defaultPackages = [ ];
