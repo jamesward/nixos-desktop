@@ -89,7 +89,14 @@
         unstable = import <nixos-unstable> {
           config = config.nixpkgs.config;
         };
+        bashGitPrompt = (import ./bash-git-prompt.nix);
       };
+    };
+
+    home.sessionVariables = {
+      NIX_SHELL_PRESERVE_PROMPT=1;
+      GIT_PROMPT_THEME="Custom";
+      GIT_PROMPT_ONLY_IN_REPO=1;
     };
 
     home.packages = [
@@ -105,6 +112,7 @@
       pkgs.nix-index
       pkgs.steam-run
       pkgs.inetutils
+      pkgs.bashGitPrompt
     ];
 
     programs.bash.enable = true;
@@ -113,7 +121,11 @@
        mvn-release = "mvn release:prepare release:perform -Darguments=-Dgpg.passphrase=\"\"";
        mvn-package = "mvn clean package";
     };
-
+    programs.bash.initExtra = ''
+      PS1="\w $ "
+      PROMPT_COMMAND="echo -ne \"\033]0;''${PWD/#$HOME/\~}\007\""
+      source ${pkgs.bashGitPrompt}/gitprompt.sh
+    '';
 
     # Use `dconf watch /` to track stateful changes you are doing
     dconf.settings = {
@@ -246,6 +258,7 @@
       ".gradle/gradle.properties".source = ./secrets/gradle.properties;
       ".m2/settings.xml".source = ./secrets/settings.xml;
       ".sbt/1.0/sonatype.sbt".source = ./secrets/sonatype.sbt;
+      ".git-prompt-colors.sh".source = ./dotfiles/.git-prompt-colors.sh;
     };
 
   };
