@@ -62,7 +62,7 @@
 
   services.printing.enable = true;
 
-  services.thermald.enable = true;
+  services.throttled.enable = true;
 
   sound.enable = true;
   hardware.pulseaudio.enable = false;
@@ -219,6 +219,9 @@
       "org/gnome/desktop/interface" = {
         font-antialiasing = "rgba";
         enable-animations = false;
+      };
+      "org/gnome/desktop/peripherals/mouse" = {
+        speed = -0.53;
       };
     };
 
