@@ -62,9 +62,12 @@
 
   services.printing.enable = true;
 
+  services.thermald.enable = true;
+
   sound.enable = true;
   hardware.pulseaudio.enable = false;
   hardware.bluetooth.enable = false;
+  hardware.enableRedistributableFirmware = true;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -312,7 +315,6 @@
     vim
     gnome.gnome-terminal
     linux-firmware
-    thermald
   ];
 
   environment.defaultPackages = [ ];
