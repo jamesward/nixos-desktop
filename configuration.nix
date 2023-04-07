@@ -116,6 +116,7 @@
       pkgs.steam-run
       pkgs.inetutils
       pkgs.bashGitPrompt
+      pkgs.gimp
     ];
 
     programs.bash.enable = true;
@@ -138,6 +139,7 @@
       "org/gnome/settings-daemon/plugins/power" = {
         sleep-inactive-battery-type = "nothing";
         sleep-inactive-ac-type = "nothing";
+        idle-dim = false;
       };
       "org/gnome/desktop/session" = {
         idle-delay = lib.hm.gvariant.mkUint32 0;
@@ -221,7 +223,7 @@
         enable-animations = false;
       };
       "org/gnome/desktop/peripherals/mouse" = {
-        speed = -0.53;
+        speed = -0.25;
       };
     };
 
@@ -264,6 +266,7 @@
       ".gradle/gradle.properties".source = ./secrets/gradle.properties;
       ".m2/settings.xml".source = ./secrets/settings.xml;
       ".sbt/1.0/sonatype.sbt".source = ./secrets/sonatype.sbt;
+      ".sbt/1.0/settings.sbt".source = ./dotfiles/settings.sbt;
       ".git-prompt-colors.sh".source = ./dotfiles/.git-prompt-colors.sh;
     };
 
