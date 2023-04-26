@@ -19,6 +19,7 @@
   boot.loader.grub.device = "nodev";
   boot.loader.grub.efiSupport = true;
   boot.loader.grub.useOSProber = true;
+  boot.kernelPackages = pkgs.linuxPackages_latest;
 
 # Can't figure out how to make nix use a different dir for builds
 # Using /tmp on tmpfs can easily cause "now space left on device" errors
@@ -61,8 +62,12 @@
   services.xserver.excludePackages = [ pkgs.xterm ];
 
   services.printing.enable = true;
+  services.avahi.enable = true;
+  services.avahi.nssmdns = true;
+  services.avahi.openFirewall = true;
 
-  services.throttled.enable = true;
+# Doesn't seem to do much
+#  services.throttled.enable = true;
 
   sound.enable = true;
   hardware.pulseaudio.enable = false;
