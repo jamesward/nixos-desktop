@@ -19,6 +19,7 @@
   boot.loader.grub.device = "nodev";
   boot.loader.grub.efiSupport = true;
   boot.loader.grub.useOSProber = true;
+  boot.kernelParams = [ "ipv6.disable=1" ];
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
 # Can't figure out how to make nix use a different dir for builds
@@ -30,6 +31,7 @@
 #  boot.blacklistedKernelModules = [ "bluetooth" "btusb" ];
 
   networking.hostName = "nixos"; # Define your hostname.
+  networking.enableIPv6 = false;
 
   networking.networkmanager.enable = true;
 
