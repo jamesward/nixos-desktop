@@ -91,7 +91,7 @@
   };
 
   home-manager.users.jw = { pkgs, lib, ... }: {
-    home.stateVersion = "22.11";
+    home.stateVersion = "23.05";
 
     nixpkgs.config = {
       allowUnfree = true;
@@ -124,6 +124,7 @@
       pkgs.inetutils
       pkgs.bashGitPrompt
       pkgs.gimp
+      pkgs.audacity
     ];
 
     programs.bash.enable = true;
@@ -344,6 +345,6 @@
 
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "22.11"; # Did you read the comment?
+  system.stateVersion = "23.05"; # Did you read the comment?
 
 }
