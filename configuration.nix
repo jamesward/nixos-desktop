@@ -107,7 +107,6 @@
       NIX_SHELL_PRESERVE_PROMPT=1;
       GIT_PROMPT_THEME="Custom";
       GIT_PROMPT_ONLY_IN_REPO=1;
-      NIXOS_OZONE_WL = "1";
     };
 
     home.packages = [
