@@ -22,6 +22,12 @@
   boot.kernelParams = [ "ipv6.disable=1" ];
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 7d";
+  };
+
 # Can't figure out how to make nix use a different dir for builds
 # Using /tmp on tmpfs can easily cause "now space left on device" errors
 #
@@ -91,7 +97,7 @@
   };
 
   home-manager.users.jw = { pkgs, lib, ... }: {
-    home.stateVersion = "23.05";
+    home.stateVersion = "23.11";
 
     nixpkgs.config = {
       allowUnfree = true;
@@ -107,6 +113,7 @@
       NIX_SHELL_PRESERVE_PROMPT=1;
       GIT_PROMPT_THEME="Custom";
       GIT_PROMPT_ONLY_IN_REPO=1;
+      NIXOS_OZONE_WL = "1";
     };
 
     home.packages = [
@@ -125,6 +132,7 @@
       pkgs.bashGitPrompt
       pkgs.gimp
       pkgs.audacity
+      pkgs.gh
     ];
 
     programs.bash.enable = true;
@@ -254,6 +262,7 @@
         core.autocrlf = "input";
         commit.gpgsign = true;
         init.defaultBranch = "main";
+        http.postBuffer = "157286400";
       };
     };
     programs.vim = {
@@ -292,7 +301,6 @@
     gnome-console
   ]) ++ (with pkgs.gnome; [
     cheese # webcam tool
-    gedit # text editor
     epiphany # web browser
     geary # email reader
     gnome-characters
@@ -320,6 +328,13 @@
   # Workaround for GNOME autologin: https://github.com/NixOS/nixpkgs/issues/103746#issuecomment-945091229
   systemd.services."getty@tty1".enable = false;
   systemd.services."autovt@tty1".enable = false;
+  systemd.services.zcfan = {
+    description = "zcfan";
+    enable = true;
+    path = [ pkgs.zcfan ];
+    script = "zcfan";
+    wantedBy = [ "multi-user.target" ];
+  };
 
   nixpkgs.config.allowUnfree = true;
 
@@ -329,6 +344,9 @@
     vim
     gnome.gnome-terminal
     linux-firmware
+    enchant
+    (aspellWithDicts (dicts: with dicts; [ en ]))
+    zcfan
   ];
 
   environment.defaultPackages = [ ];
@@ -345,6 +363,6 @@
 
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "23.05"; # Did you read the comment?
+  system.stateVersion = "23.11"; # Did you read the comment?
 
 }
