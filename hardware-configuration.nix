@@ -24,14 +24,9 @@
       fsType = "vfat";
     };
 
-  fileSystems."/mnt/home" =
+  fileSystems."/home/jw/projects" =
     { device = "/dev/disk/by-uuid/c433a9f7-8454-4c40-b0ff-895f605a538b";
       fsType = "ext4";
-    };
-
-  fileSystems."/home/jw/projects" =
-    { device = "/mnt/home/jw/projects";
-      options = [ "bind" ];
     };
 
   swapDevices = [ ];

@@ -57,21 +57,26 @@
     LC_TIME = "en_US.UTF-8";
   };
 
+  services.displayManager.autoLogin = {
+    enable = true;
+    user = "jw";
+  };
+
   services.xserver.enable = true;
 
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
 
-  services.xserver = {
+  services.xserver.xkb = {
     layout = "us";
-    xkbVariant = "";
+    variant = "";
   };
 
   services.xserver.excludePackages = [ pkgs.xterm ];
 
   services.printing.enable = true;
   services.avahi.enable = true;
-  services.avahi.nssmdns = true;
+  services.avahi.nssmdns4 = true;
   services.avahi.openFirewall = true;
 
 # Doesn't seem to do much
@@ -97,7 +102,7 @@
   };
 
   home-manager.users.jw = { pkgs, lib, ... }: {
-    home.stateVersion = "23.11";
+    home.stateVersion = "24.05";
 
     nixpkgs.config = {
       allowUnfree = true;
@@ -322,9 +327,6 @@
   # Enable external apps to work via NIX_LD_LIBRARY_PATH
   programs.nix-ld.enable = true;
 
-  services.xserver.displayManager.autoLogin.enable = true;
-  services.xserver.displayManager.autoLogin.user = "jw";
-
   # Workaround for GNOME autologin: https://github.com/NixOS/nixpkgs/issues/103746#issuecomment-945091229
   systemd.services."getty@tty1".enable = false;
   systemd.services."autovt@tty1".enable = false;
@@ -363,6 +365,6 @@
 
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "23.11"; # Did you read the comment?
+  system.stateVersion = "24.05"; # Did you read the comment?
 
 }
