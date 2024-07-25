@@ -234,6 +234,8 @@
           "_processor_frequency_"
           "_processor_usage_"
           "_memory_usage_"
+          "__fan_avg__"
+          "_temperature_thinkpad_cpu_"
         ];
       };
       "org/gnome/desktop/sound" = {
