@@ -216,6 +216,7 @@
         enabled-extensions = [
           "Vitals@CoreCoding.com"
           "dash-to-panel@jderose9.github.com"
+          "apps-menu@gnome-shell-extensions.gcampax.github.com"
         ];
 
         favorite-apps = [
