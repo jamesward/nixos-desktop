@@ -11,6 +11,9 @@
   boot.initrd.availableKernelModules = [ "xhci_pci" "nvme" "usb_storage" "sd_mod" "rtsx_pci_sdmmc" "thinkpad_acpi" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
+  boot.kernelParams = [
+    "intel_pstate=no_hwp"
+  ];
   boot.extraModulePackages = [ ];
   boot.extraModprobeConfig = "options thinkpad_acpi experimental=1 fan_control=1";
 

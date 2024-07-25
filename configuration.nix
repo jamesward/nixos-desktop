@@ -330,13 +330,20 @@
   # Workaround for GNOME autologin: https://github.com/NixOS/nixpkgs/issues/103746#issuecomment-945091229
   systemd.services."getty@tty1".enable = false;
   systemd.services."autovt@tty1".enable = false;
-  systemd.services.zcfan = {
-    description = "zcfan";
-    enable = true;
-    path = [ pkgs.zcfan ];
-    script = "zcfan";
-    wantedBy = [ "multi-user.target" ];
-  };
+
+  hardware.fancontrol.enable = true;
+  hardware.fancontrol.config =
+    ''
+    INTERVAL=1
+    DEVPATH=hwmon1=devices/platform/thinkpad_hwmon
+    DEVNAME=hwmon1=thinkpad
+    FCTEMPS=hwmon1/pwm1=hwmon1/temp1_input
+    FCFANS= hwmon1/pwm1=hwmon1/fan2_input+hwmon1/fan1_input
+    MINTEMP=hwmon1/pwm1=20
+    MAXTEMP=hwmon1/pwm1=60
+    MINSTART=hwmon1/pwm1=150
+    MINSTOP=hwmon1/pwm1=0
+    '';
 
   nixpkgs.config.allowUnfree = true;
 
@@ -348,7 +355,6 @@
     linux-firmware
     enchant
     (aspellWithDicts (dicts: with dicts; [ en ]))
-    zcfan
   ];
 
   environment.defaultPackages = [ ];
