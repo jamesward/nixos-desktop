@@ -74,7 +74,13 @@
 
   services.xserver.excludePackages = [ pkgs.xterm ];
 
-  services.printing.enable = true;
+  services.printing = {
+    enable = true;
+    listenAddresses = [ "localhost:631" ];
+    browsing = false;
+    defaultShared = false;
+  };
+
   services.avahi.enable = true;
   services.avahi.nssmdns4 = true;
   services.avahi.openFirewall = true;
@@ -118,7 +124,7 @@
       NIX_SHELL_PRESERVE_PROMPT=1;
       GIT_PROMPT_THEME="Custom";
       GIT_PROMPT_ONLY_IN_REPO=1;
-      NIXOS_OZONE_WL = "1";
+#      NIXOS_OZONE_WL = "1";
     };
 
     home.packages = [
@@ -266,6 +272,7 @@
         push.default = "current";
         push.followTags = true;
         pull.rebase = true;
+        rebase.autostash = true;
         core.pager = "less -+S";
         core.autocrlf = "input";
         commit.gpgsign = true;
