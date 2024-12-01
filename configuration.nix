@@ -88,17 +88,17 @@
 # Doesn't seem to do much
 #  services.throttled.enable = true;
 
-  sound.enable = true;
-  hardware.pulseaudio.enable = false;
+#  sound.enable = true;
+#  hardware.pulseaudio.enable = false;
   hardware.bluetooth.enable = false;
   hardware.enableRedistributableFirmware = true;
   security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-  };
+#  services.pipewire = {
+#    enable = true;
+#    alsa.enable = true;
+#    alsa.support32Bit = true;
+#    pulse.enable = true;
+#  };
   services.logind.lidSwitch = "ignore";
 
   users.users.jw = {
@@ -108,7 +108,7 @@
   };
 
   home-manager.users.jw = { pkgs, lib, ... }: {
-    home.stateVersion = "24.05";
+    home.stateVersion = "24.11";
 
     nixpkgs.config = {
       allowUnfree = true;
@@ -132,7 +132,7 @@
       pkgs.trash-cli
       pkgs.maven
       pkgs.jdk
-      pkgs.gnome.gnome-tweaks
+      pkgs.gnome-tweaks
       pkgs.gnomeExtensions.vitals
       pkgs.gnomeExtensions.dash-to-panel
       pkgs.unstable.jetbrains.idea-ultimate
@@ -144,6 +144,8 @@
       pkgs.gimp
       pkgs.audacity
       pkgs.gh
+      pkgs.unstable.zed-editor
+      pkgs.unstable.rain
     ];
 
     programs.bash.enable = true;
@@ -304,9 +306,12 @@
 
   };
 
-  virtualisation.docker.rootless = {
-    enable = true;
-    setSocketVariable = true;
+  virtualisation.docker = {
+    enableOnBoot = false;
+    rootless = {
+      enable = true;
+      setSocketVariable = true;
+    };
   };
 
   environment.gnome.excludePackages = (with pkgs; [
@@ -314,7 +319,7 @@
     gnome-tour
     gnome-connections
     gnome-console
-  ]) ++ (with pkgs.gnome; [
+  ]) ++ (with pkgs; [
     cheese # webcam tool
     epiphany # web browser
     geary # email reader
@@ -333,6 +338,7 @@
   ]);
 
   programs.dconf.enable = true;
+  programs.seahorse.enable = true;
 
   # Enable external apps to work via NIX_LD_LIBRARY_PATH
   programs.nix-ld.enable = true;
@@ -361,7 +367,7 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     vim
-    gnome.gnome-terminal
+    gnome-terminal
     linux-firmware
     enchant
     (aspellWithDicts (dicts: with dicts; [ en ]))
