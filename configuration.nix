@@ -28,6 +28,8 @@
     options = "--delete-older-than 7d";
   };
 
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
 # Can't figure out how to make nix use a different dir for builds
 # Using /tmp on tmpfs can easily cause "now space left on device" errors
 #
@@ -39,7 +41,11 @@
   networking.hostName = "nixos"; # Define your hostname.
   networking.enableIPv6 = false;
 
-  networking.networkmanager.enable = true;
+  networking.networkmanager = {
+    enable = true;
+    wifi.powersave = false;
+    wifi.scanRandMacAddress = false;
+  };
 
   time.timeZone = "America/Denver";
 
@@ -104,7 +110,8 @@
   users.users.jw = {
     isNormalUser = true;
     description = "James Ward";
-    extraGroups = [ "networkmanager" "wheel" ];
+#    extraGroups = [ "networkmanager" "wheel" "docker"];
+    extraGroups = [ "networkmanager" "wheel" "docker" "tty"];
   };
 
   home-manager.users.jw = { pkgs, lib, ... }: {
@@ -136,6 +143,7 @@
       pkgs.gnomeExtensions.vitals
       pkgs.gnomeExtensions.dash-to-panel
       pkgs.unstable.jetbrains.idea-ultimate
+      pkgs.unstable.httptap
       pkgs.unzip
       pkgs.nix-index
       pkgs.steam-run
@@ -144,8 +152,9 @@
       pkgs.gimp
       pkgs.audacity
       pkgs.gh
-      pkgs.unstable.zed-editor
+#      pkgs.unstable.zed-editor
       pkgs.unstable.rain
+      pkgs.unstable.amazon-q-cli
     ];
 
     programs.bash.enable = true;
@@ -153,6 +162,7 @@
        rm = "trash-put";
        mvn-release = "mvn release:prepare release:perform -Darguments=-Dgpg.passphrase=\"\"";
        mvn-package = "mvn clean package";
+       q = "amazon-q chat";
     };
     programs.bash.initExtra = ''
       PS1="\w $ "
@@ -307,11 +317,12 @@
   };
 
   virtualisation.docker = {
+    enable = true;
     enableOnBoot = false;
-    rootless = {
-      enable = true;
-      setSocketVariable = true;
-    };
+#    rootless = {
+#      enable = true;
+#      setSocketVariable = true;
+#    };
   };
 
   environment.gnome.excludePackages = (with pkgs; [
@@ -351,14 +362,14 @@
   hardware.fancontrol.config =
     ''
     INTERVAL=1
-    DEVPATH=hwmon1=devices/platform/thinkpad_hwmon
-    DEVNAME=hwmon1=thinkpad
-    FCTEMPS=hwmon1/pwm1=hwmon1/temp1_input
-    FCFANS= hwmon1/pwm1=hwmon1/fan2_input+hwmon1/fan1_input
-    MINTEMP=hwmon1/pwm1=20
-    MAXTEMP=hwmon1/pwm1=60
-    MINSTART=hwmon1/pwm1=150
-    MINSTOP=hwmon1/pwm1=0
+    DEVPATH=hwmon2=devices/platform/thinkpad_hwmon
+    DEVNAME=hwmon2=thinkpad
+    FCTEMPS=hwmon2/pwm1=hwmon2/temp1_input
+    FCFANS= hwmon2/pwm1=hwmon2/fan2_input+hwmon2/fan1_input
+    MINTEMP=hwmon2/pwm1=20
+    MAXTEMP=hwmon2/pwm1=60
+    MINSTART=hwmon2/pwm1=150
+    MINSTOP=hwmon2/pwm1=0
     '';
 
   nixpkgs.config.allowUnfree = true;
