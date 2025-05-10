@@ -155,6 +155,7 @@
 #      pkgs.unstable.zed-editor
       pkgs.unstable.rain
       pkgs.unstable.amazon-q-cli
+      pkgs.unstable.pkl
     ];
 
     programs.bash.enable = true;
@@ -163,6 +164,7 @@
        mvn-release = "mvn release:prepare release:perform -Darguments=-Dgpg.passphrase=\"\"";
        mvn-package = "mvn clean package";
        q = "amazon-q chat";
+       yolo = "amazon-q chat --no-interactive --accept-all \$@";
     };
     programs.bash.initExtra = ''
       PS1="\w $ "
