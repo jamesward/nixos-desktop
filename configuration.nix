@@ -82,9 +82,8 @@
 
   services.printing = {
     enable = true;
-    listenAddresses = [ "localhost:631" ];
-    browsing = false;
-    defaultShared = false;
+    stateless = true;
+    browsing = true;
   };
 
   services.avahi.enable = true;
@@ -165,6 +164,7 @@
        mvn-package = "mvn clean package";
        q = "amazon-q chat";
        yolo = "amazon-q chat --no-interactive --accept-all \$@";
+       mcpinspector = "nix-shell -p nodejs --run \"npx -y @modelcontextprotocol/inspector\"";
     };
     programs.bash.initExtra = ''
       PS1="\w $ "
