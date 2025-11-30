@@ -28,7 +28,7 @@
     };
 
   fileSystems."/home/jw/projects" =
-    { device = "/dev/disk/by-uuid/c433a9f7-8454-4c40-b0ff-895f605a538b";
+    { device = "/dev/disk/by-uuid/cafc6d78-ae9e-40d4-9b98-df489a858546";
       fsType = "ext4";
     };
 
@@ -39,10 +39,10 @@
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   powerManagement.cpuFreqGovernor = lib.mkDefault "performance";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
-  hardware.graphics = {
-    enable = true;
-    extraPackages = with pkgs; [
-      intel-media-sdk
-    ];
-  };
+#  hardware.graphics = {
+#    enable = true;
+#    extraPackages = with pkgs; [
+#      intel-media-sdk
+#    ];
+#  };
 }

@@ -21,6 +21,15 @@
   boot.loader.grub.useOSProber = true;
   boot.kernelParams = [ "ipv6.disable=1" ];
   boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.binfmt.emulatedSystems = [
+    "aarch64-linux"
+  ];
+  boot.binfmt.preferStaticEmulators = true;
+
+#  nixpkgs.config.permittedInsecurePackages = [
+#    "intel-media-sdk-23.2.2"
+#  ];
+
 
   nix.gc = {
     automatic = true;
@@ -68,10 +77,12 @@
     user = "jw";
   };
 
-  services.xserver.enable = true;
+#  services.resolved.enable = true;
 
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
+#  services.xserver.enable = true;
+
+  services.displayManager.gdm.enable = true;
+  services.desktopManager.gnome.enable = true;
 
   services.xserver.xkb = {
     layout = "us";
@@ -80,15 +91,11 @@
 
   services.xserver.excludePackages = [ pkgs.xterm ];
 
-  services.printing = {
-    enable = true;
-    stateless = true;
-    browsing = true;
-  };
-
+  services.printing.enable = true;
+#  services.printing.logLevel = "debug";
+  services.printing.browsed.enable = false;
   services.avahi.enable = true;
   services.avahi.nssmdns4 = true;
-  services.avahi.openFirewall = true;
 
 # Doesn't seem to do much
 #  services.throttled.enable = true;
@@ -104,7 +111,7 @@
 #    alsa.support32Bit = true;
 #    pulse.enable = true;
 #  };
-  services.logind.lidSwitch = "ignore";
+  services.logind.settings.Login.HandleLidSwitch = "ignore";
 
   users.users.jw = {
     isNormalUser = true;
@@ -134,15 +141,18 @@
     };
 
     home.packages = [
+      pkgs.dig
       pkgs.google-chrome
       pkgs.trash-cli
       pkgs.maven
-      pkgs.jdk
+      pkgs.jdk25
       pkgs.gnome-tweaks
       pkgs.gnomeExtensions.vitals
       pkgs.gnomeExtensions.dash-to-panel
       pkgs.unstable.jetbrains.idea-ultimate
-      pkgs.unstable.httptap
+#      pkgs.unstable.httptap
+#      pkgs.unstable.claude-code
+#      pkgs.unstable.pack
       pkgs.unzip
       pkgs.nix-index
       pkgs.steam-run
@@ -152,12 +162,17 @@
       pkgs.audacity
       pkgs.gh
 #      pkgs.unstable.zed-editor
-      pkgs.unstable.rain
+#      pkgs.unstable.rain
       pkgs.unstable.amazon-q-cli
-      pkgs.unstable.pkl
+#      pkgs.unstable.pkl
+      pkgs.nodejs
+      pkgs.signal-desktop-bin
+#      pkgs.git-credential-manager
+#      pkgs.unstable.awscli2
     ];
 
     programs.bash.enable = true;
+    programs.bash.historySize = 9999;
     programs.bash.shellAliases = {
        rm = "trash-put";
        mvn-release = "mvn release:prepare release:perform -Darguments=-Dgpg.passphrase=\"\"";
@@ -273,16 +288,18 @@
 
     programs.git = {
       enable = true;
-      userName  = "James Ward";
-      userEmail = "james@jamesward.com";
+      package = pkgs.gitFull;
       signing = { 
         signByDefault = true;
         key = null;
       };
-      extraConfig = {
-        credential.helper = "${
-          pkgs.git.override { withLibsecret = true; }
-        }/bin/git-credential-libsecret";
+      settings = {
+        user.name = "James Ward";
+        user.email = "james@jamesward.com";
+#        credential.helper = "${
+#          pkgs.git.override { withLibsecret = true; }
+#        }/bin/git-credential-libsecret";
+        credential.helper = "libsecret";
         push.default = "current";
         push.followTags = true;
         pull.rebase = true;
@@ -321,10 +338,10 @@
   virtualisation.docker = {
     enable = true;
     enableOnBoot = false;
-#    rootless = {
-#      enable = true;
-#      setSocketVariable = true;
-#    };
+    rootless = {
+      enable = true;
+      setSocketVariable = true;
+    };
   };
 
   environment.gnome.excludePackages = (with pkgs; [
@@ -380,6 +397,7 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     vim
+    qemu
     gnome-terminal
     linux-firmware
     enchant
