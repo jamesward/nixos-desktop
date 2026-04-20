@@ -19,7 +19,9 @@
   boot.loader.grub.device = "nodev";
   boot.loader.grub.efiSupport = true;
   boot.loader.grub.useOSProber = true;
-  boot.kernelParams = [ "ipv6.disable=1" ];
+  boot.kernelParams = [
+    "ipv6.disable=1"
+  ];
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.binfmt.emulatedSystems = [
     "aarch64-linux"
@@ -93,7 +95,7 @@
 
   services.printing.enable = true;
 #  services.printing.logLevel = "debug";
-  services.printing.browsed.enable = false;
+  services.printing.browsed.enable = true;
   services.avahi.enable = true;
   services.avahi.nssmdns4 = true;
 
@@ -149,9 +151,11 @@
       pkgs.gnome-tweaks
       pkgs.gnomeExtensions.vitals
       pkgs.gnomeExtensions.dash-to-panel
-      pkgs.unstable.jetbrains.idea-ultimate
+      pkgs.unstable.kiro
+      pkgs.unstable.kiro-cli
+      pkgs.unstable.jetbrains.idea
 #      pkgs.unstable.httptap
-#      pkgs.unstable.claude-code
+      pkgs.unstable.claude-code-bin
 #      pkgs.unstable.pack
       pkgs.unzip
       pkgs.nix-index
@@ -163,12 +167,14 @@
       pkgs.gh
 #      pkgs.unstable.zed-editor
 #      pkgs.unstable.rain
-      pkgs.unstable.amazon-q-cli
-#      pkgs.unstable.pkl
+#      pkgs.unstable.amazon-q-cli
+      pkgs.pkl
       pkgs.nodejs
       pkgs.signal-desktop-bin
 #      pkgs.git-credential-manager
 #      pkgs.unstable.awscli2
+      pkgs.jq
+      pkgs.slack
     ];
 
     programs.bash.enable = true;
@@ -185,6 +191,7 @@
       PS1="\w $ "
       PROMPT_COMMAND="echo -ne \"\033]0;''${PWD/#$HOME/\~}\007\""
       source ${pkgs.bashGitPrompt}/gitprompt.sh
+      [ -f ~/.nixos/secrets/env.sh ] && source ~/.nixos/secrets/env.sh
     '';
 
     # Use `dconf watch /` to track stateful changes you are doing
@@ -322,6 +329,7 @@
         set shiftwidth=4
         set expandtab
         set mouse-=a
+        set nofoldenable
       '';
     };
 
