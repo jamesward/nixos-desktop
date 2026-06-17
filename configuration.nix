@@ -27,6 +27,7 @@
     "aarch64-linux"
   ];
   boot.binfmt.preferStaticEmulators = true;
+  boot.tmp.cleanOnBoot = true;
 
 #  nixpkgs.config.permittedInsecurePackages = [
 #    "intel-media-sdk-23.2.2"
@@ -155,7 +156,7 @@
       pkgs.unstable.kiro-cli
       pkgs.unstable.jetbrains.idea
 #      pkgs.unstable.httptap
-      pkgs.unstable.claude-code-bin
+      pkgs.unstable.claude-code
 #      pkgs.unstable.pack
       pkgs.unzip
       pkgs.nix-index
@@ -170,11 +171,12 @@
 #      pkgs.unstable.amazon-q-cli
       pkgs.pkl
       pkgs.nodejs
-      pkgs.signal-desktop-bin
+      pkgs.signal-desktop
 #      pkgs.git-credential-manager
 #      pkgs.unstable.awscli2
       pkgs.jq
       pkgs.slack
+      pkgs.heroku
     ];
 
     programs.bash.enable = true;
@@ -189,7 +191,7 @@
     };
     programs.bash.initExtra = ''
       PS1="\w $ "
-      PROMPT_COMMAND="echo -ne \"\033]0;''${PWD/#$HOME/\~}\007\""
+      PROMPT_COMMAND='echo -ne "\033]0;''${PWD/#$HOME/\~}\007"'
       source ${pkgs.bashGitPrompt}/gitprompt.sh
       [ -f ~/.nixos/secrets/env.sh ] && source ~/.nixos/secrets/env.sh
     '';
@@ -287,6 +289,7 @@
       "org/gnome/desktop/interface" = {
         font-antialiasing = "rgba";
         enable-animations = false;
+        gtk-enable-primary-paste = true;
       };
       "org/gnome/desktop/peripherals/mouse" = {
         speed = -0.25;
@@ -405,7 +408,7 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     vim
-    qemu
+#    qemu
     gnome-terminal
     linux-firmware
     enchant
