@@ -140,6 +140,7 @@
       NIX_SHELL_PRESERVE_PROMPT=1;
       GIT_PROMPT_THEME="Custom";
       GIT_PROMPT_ONLY_IN_REPO=1;
+      CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1;
 #      NIXOS_OZONE_WL = "1";
     };
 
@@ -170,8 +171,8 @@
 #      pkgs.unstable.rain
 #      pkgs.unstable.amazon-q-cli
       pkgs.pkl
-      pkgs.nodejs
-      pkgs.signal-desktop
+#      pkgs.nodejs
+#      pkgs.signal-desktop
 #      pkgs.git-credential-manager
 #      pkgs.unstable.awscli2
       pkgs.jq
@@ -183,7 +184,7 @@
     programs.bash.historySize = 9999;
     programs.bash.shellAliases = {
        rm = "trash-put";
-       mvn-release = "mvn release:prepare release:perform -Darguments=-Dgpg.passphrase=\"\"";
+       mvn-release = "mvn release:prepare release:perform -Darguments=\"-Dgpg.passphrase= -Psonatype-oss-release\"";
        mvn-package = "mvn clean package";
        q = "amazon-q chat";
        yolo = "amazon-q chat --no-interactive --accept-all \$@";
@@ -342,6 +343,12 @@
       ".sbt/1.0/sonatype.sbt".source = ./secrets/sonatype.sbt;
       ".sbt/1.0/settings.sbt".source = ./dotfiles/settings.sbt;
       ".git-prompt-colors.sh".source = ./dotfiles/.git-prompt-colors.sh;
+      # signing key is disk-based, not on the (unrelated) hardware key used for browser WebAuthn;
+      # scdaemon's probing of that hardware key fails with "error retrieving key fingerprint from
+      # card: Invalid name" and aborts gpg-agent operations, so disable it entirely.
+      ".gnupg/gpg-agent.conf".text = ''
+        disable-scdaemon
+      '';
     };
 
   };
@@ -401,6 +408,28 @@
     MINSTART=hwmon2/pwm1=150
     MINSTOP=hwmon2/pwm1=0
     '';
+
+  # On resume from sleep the thinkpad EC sensor briefly returns ENXIO, which
+  # makes fancontrol abort. Without these tweaks the bare Restart=on-failure
+  # hammers 5 restarts in <1s, hits the start limit, and gives up for good.
+  systemd.services.fancontrol = {
+    # Disable the start rate limit so it keeps retrying until the EC is ready.
+    unitConfig.StartLimitIntervalSec = 0;
+    # Back off between retries instead of spinning instantly.
+    serviceConfig.RestartSec = 5;
+  };
+
+  # Kick fancontrol after every wake so it recovers immediately rather than
+  # waiting for the next failure/retry cycle.
+  systemd.services.fancontrol-resume = {
+    description = "Restart fancontrol after resume from sleep";
+    after = [ "suspend.target" "hibernate.target" "hybrid-sleep.target" "suspend-then-hibernate.target" ];
+    wantedBy = [ "suspend.target" "hibernate.target" "hybrid-sleep.target" "suspend-then-hibernate.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.systemd}/bin/systemctl restart fancontrol.service";
+    };
+  };
 
   nixpkgs.config.allowUnfree = true;
 
