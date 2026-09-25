@@ -8,6 +8,7 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      ./nbfc.nix
       <home-manager/nixos>
     ];
 
@@ -28,6 +29,17 @@
   ];
   boot.binfmt.preferStaticEmulators = true;
   boot.tmp.cleanOnBoot = true;
+
+  # IntelliJ's native file watcher (fsnotifier) recursively watches the large
+  # sbt monorepos plus the coursier/sbt dependency caches. The default 524288
+  # inotify watch ceiling overflows, so fsnotifier crashes (idea.log shows
+  # "table error: corruption at ... / 524288" then "Watcher terminated") and
+  # the IDE ends up with no watcher ("cannot receive filesystem event
+  # notifications. Is it on a network drive?"). Raise the ceiling with headroom.
+  boot.kernel.sysctl = {
+    "fs.inotify.max_user_watches" = 2097152;
+    "fs.inotify.max_user_instances" = 1024;
+  };
 
 #  nixpkgs.config.permittedInsecurePackages = [
 #    "intel-media-sdk-23.2.2"
@@ -151,10 +163,13 @@
       pkgs.maven
       pkgs.jdk25
       pkgs.gnome-tweaks
-      pkgs.gnomeExtensions.vitals
+      # Patched to read ThinkPad fan speeds from NBFC (see nbfc.nix).
+      (pkgs.gnomeExtensions.vitals.overrideAttrs (old: {
+        patches = (old.patches or [ ]) ++ [ ./patches/vitals-nbfc-fans.patch ];
+      }))
       pkgs.gnomeExtensions.dash-to-panel
       pkgs.unstable.kiro
-      pkgs.unstable.kiro-cli
+      pkgs.unstable.kiro-cli-unwrapped
       pkgs.unstable.jetbrains.idea
 #      pkgs.unstable.httptap
       pkgs.unstable.claude-code
@@ -162,7 +177,8 @@
       pkgs.unzip
       pkgs.nix-index
       pkgs.steam-run
-      pkgs.inetutils
+#      pkgs.inetutils
+      pkgs.mtr
       pkgs.bashGitPrompt
       pkgs.gimp
       pkgs.audacity
@@ -171,7 +187,7 @@
 #      pkgs.unstable.rain
 #      pkgs.unstable.amazon-q-cli
       pkgs.pkl
-#      pkgs.nodejs
+      pkgs.nodejs
 #      pkgs.signal-desktop
 #      pkgs.git-credential-manager
 #      pkgs.unstable.awscli2
@@ -394,42 +410,6 @@
   # Workaround for GNOME autologin: https://github.com/NixOS/nixpkgs/issues/103746#issuecomment-945091229
   systemd.services."getty@tty1".enable = false;
   systemd.services."autovt@tty1".enable = false;
-
-  hardware.fancontrol.enable = true;
-  hardware.fancontrol.config =
-    ''
-    INTERVAL=1
-    DEVPATH=hwmon2=devices/platform/thinkpad_hwmon
-    DEVNAME=hwmon2=thinkpad
-    FCTEMPS=hwmon2/pwm1=hwmon2/temp1_input
-    FCFANS= hwmon2/pwm1=hwmon2/fan2_input+hwmon2/fan1_input
-    MINTEMP=hwmon2/pwm1=20
-    MAXTEMP=hwmon2/pwm1=60
-    MINSTART=hwmon2/pwm1=150
-    MINSTOP=hwmon2/pwm1=0
-    '';
-
-  # On resume from sleep the thinkpad EC sensor briefly returns ENXIO, which
-  # makes fancontrol abort. Without these tweaks the bare Restart=on-failure
-  # hammers 5 restarts in <1s, hits the start limit, and gives up for good.
-  systemd.services.fancontrol = {
-    # Disable the start rate limit so it keeps retrying until the EC is ready.
-    unitConfig.StartLimitIntervalSec = 0;
-    # Back off between retries instead of spinning instantly.
-    serviceConfig.RestartSec = 5;
-  };
-
-  # Kick fancontrol after every wake so it recovers immediately rather than
-  # waiting for the next failure/retry cycle.
-  systemd.services.fancontrol-resume = {
-    description = "Restart fancontrol after resume from sleep";
-    after = [ "suspend.target" "hibernate.target" "hybrid-sleep.target" "suspend-then-hibernate.target" ];
-    wantedBy = [ "suspend.target" "hibernate.target" "hybrid-sleep.target" "suspend-then-hibernate.target" ];
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.systemd}/bin/systemctl restart fancontrol.service";
-    };
-  };
 
   nixpkgs.config.allowUnfree = true;
 

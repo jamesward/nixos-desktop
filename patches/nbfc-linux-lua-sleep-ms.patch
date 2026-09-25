@@ -1,0 +1,86 @@
+diff --git a/src/lua_bindings.c b/src/lua_bindings.c
+index a39464e..6a956b2 100644
+--- a/src/lua_bindings.c
++++ b/src/lua_bindings.c
+@@ -2,6 +2,7 @@
+ 
+ #include "ec.h"
+ #include "acpi_call.h"
++#include "sleep.h"
+ 
+ #include <string.h> // strcmp
+ #include <lauxlib.h>
+@@ -102,6 +103,20 @@ static int Lua_EC_WriteWord(lua_State* l) {
+   return Lua_Return_Integer(l, 0);
+ }
+ 
++static int Lua_SleepMs(lua_State* l) {
++  const lua_Integer milliseconds = luaL_checkinteger(l, 1);
++
++  if (milliseconds < 0)
++    return Lua_Return_Error(l, "sleep_ms(): milliseconds < 0");
++
++  if (milliseconds > 60000)
++    return Lua_Return_Error(l, "sleep_ms(): milliseconds > 60000");
++
++  sleep_ms((unsigned int) milliseconds);
++
++  return Lua_Return_Integer(l, 0);
++}
++
+ static int Lua_ACPI_Call(lua_State* l) {
+   Error e;
+   size_t method_len;
+@@ -167,6 +182,7 @@ Error Lua_Open(void) {
+   lua_register(Lua_State, "ec_read_word",  Lua_EC_ReadWord);
+   lua_register(Lua_State, "ec_write",      Lua_EC_Write);
+   lua_register(Lua_State, "ec_write_word", Lua_EC_WriteWord);
++  lua_register(Lua_State, "sleep_ms",      Lua_SleepMs);
+   lua_register(Lua_State, "acpi_call",     Lua_ACPI_Call);
+   lua_register(Lua_State, "acpi_call_raw", Lua_ACPI_CallRaw);
+   lua_register(Lua_State, "acpi_get_int",  Lua_ACPI_GetInt);
+diff --git a/src/config_analysis.c b/src/config_analysis.c
+index ce3d6fe..121324b 100644
+--- a/src/config_analysis.c
++++ b/src/config_analysis.c
+@@ -197,6 +197,16 @@ static int ConfigAnalysis_ACPI_GetInt(lua_State* l) {
+   return Lua_Return_Integer(l, CONFIG_ANALYSIS_DUMMY_RETURN_VALUE);
+ }
+ 
++static int ConfigAnalysis_SleepMs(lua_State* l) {
++  const lua_Integer milliseconds = luaL_checkinteger(l, 1);
++
++  if (milliseconds < 0 || milliseconds > 60000)
++    return Lua_Return_Error(l, "sleep_ms(): milliseconds out of range");
++
++  /* Configuration analysis must not incur runtime hardware delays. */
++  return Lua_Return_Integer(l, 0);
++}
++
+ static Error ConfigAnalysis_Begin(void) {
+   Error e;
+ 
+@@ -209,6 +219,7 @@ static Error ConfigAnalysis_Begin(void) {
+   lua_register(Lua_State, "ec_read_word",  ConfigAnalysis_EC_ReadWord);
+   lua_register(Lua_State, "ec_write",      ConfigAnalysis_EC_Write);
+   lua_register(Lua_State, "ec_write_word", ConfigAnalysis_EC_WriteWord);
++  lua_register(Lua_State, "sleep_ms",      ConfigAnalysis_SleepMs);
+   lua_register(Lua_State, "acpi_call",     ConfigAnalysis_ACPI_Call);
+   lua_register(Lua_State, "acpi_call_raw", ConfigAnalysis_ACPI_CallRaw);
+   lua_register(Lua_State, "acpi_get_int",  ConfigAnalysis_ACPI_GetInt);
+diff --git a/doc/nbfc_service.json.5.md b/doc/nbfc_service.json.5.md
+index a5d1438..521b5a1 100644
+--- a/doc/nbfc_service.json.5.md
++++ b/doc/nbfc_service.json.5.md
+@@ -482,6 +482,11 @@ The following functions are exposed to Lua:
+ 
+ > Writes a 16-bit value to a two-byte register. Returns **error**, **0**.
+ 
++**sleep_ms**(**milliseconds**):
++
++> Suspends execution for the requested number of milliseconds (0 through
++> 60000). Returns **error**, **0**.
++
+ ## Lua Libraries
+ 
+ To keep memory usage as low as possible, no Lua libraries are loaded by

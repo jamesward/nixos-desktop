@@ -1,0 +1,76 @@
+--- a/sensors.js
++++ b/sensors.js
+@@ -26,6 +26,7 @@
+ 
+ import GLib from 'gi://GLib';
+ import GObject from 'gi://GObject';
++import Gio from 'gi://Gio';
+ import * as SubProcessModule from './helpers/subprocess.js';
+ import * as FileModule from './helpers/file.js';
+ import { gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
+@@ -130,7 +131,54 @@
+         }
+     }
+ 
++    // Local NixOS patch (ThinkPad P1 Gen 3 + NBFC): both tachometers share EC
++    // selector register 0x31, so reading thinkpad hwmon fan*_input races
++    // NBFC's fan control. Use NBFC's serialized readings instead. The P1
++    // profile reports raw RPM on a 0-8000 scale, so percentage * 80 = RPM.
++    _queryNbfcFans(callback) {
++        if (this._nbfcPending)
++            return;
++        this._nbfcPending = true;
++
++        let proc;
++        try {
++            proc = Gio.Subprocess.new(
++                ['/run/current-system/sw/bin/nbfc', 'status', '--all'],
++                Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_SILENCE);
++        } catch (e) {
++            this._nbfcPending = false;
++            return;
++        }
++
++        proc.communicate_utf8_async(null, null, (p, res) => {
++            this._nbfcPending = false;
++            try {
++                let [, stdout] = p.communicate_utf8_finish(res);
++                if (!p.get_successful() || !stdout)
++                    return;
++
++                let name = null;
++                for (let line of stdout.split('\n')) {
++                    let m = line.match(/^Fan Display Name\s*:\s*(.+)$/);
++                    if (m) {
++                        name = m[1].trim();
++                        continue;
++                    }
++                    m = line.match(/^Current Fan Speed\s*:\s*([\d.]+)/);
++                    if (m && name) {
++                        let rpm = Math.round(parseFloat(m[1]) * 80);
++                        this._returnValue(callback, name, rpm, 'fan', 'fan');
++                        name = null;
++                    }
++                }
++            } catch (e) { }
++        });
++    }
++
+     _queryTempVoltFan(callback, type) {
++        if (type == 'fan')
++            this._queryNbfcFans(callback);
++
+         for (let label in this._tempVoltFanSensors[type]) {
+             let sensor = this._tempVoltFanSensors[type][label];
+ 
+@@ -995,6 +1043,10 @@
+                 if (!('input' in obj))
+                     continue;
+ 
++                // Local NixOS patch: thinkpad fans are read through NBFC.
++                if (obj['type'] == 'fan' && name == 'thinkpad')
++                    continue;
++
+                 new FileModule.File(obj['input']).read().then(value => {
+                     let extra = (obj['label'].indexOf('_label')==-1) ? ' ' + obj['input'].substr(obj['input'].lastIndexOf('/')+1).split('_')[0] : '';
+ 
